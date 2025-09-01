@@ -1,0 +1,58 @@
+<!-- File: app/templates/base.html -->
+<!-- This is the main template that all other pages will extend. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Roofing Sales App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('index') }}" class="text-xl font-bold text-gray-800">RoofingApp</a>
+                </div>
+                <!-- NEW: Dynamic Login/Logout Links -->
+                <div class="flex items-center space-x-4">
+                    {% if current_user.is_authenticated %}
+                        <span class="text-gray-800">Welcome, {{ current_user.username }}!</span>
+                        <a href="{{ url_for('add_lead') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Add New Lead</a>
+                        <a href="{{ url_for('logout') }}" class="text-gray-600 hover:text-gray-800">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-gray-800">Login</a>
+                        <a href="{{ url_for('register') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-md {{ 'bg-green-100 text-green-800' if category == 'success' else 'bg-red-100 text-red-800' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Dynamic Content Block -->
+            <!-- Other templates will inject their content here -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,47 @@
+<!-- This is the page for editing an existing deal. -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg mx-auto">
+    <!-- The title provides context about which lead this deal belongs to. -->
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Edit Deal for {{ deal.lead.first_name }} {{ deal.lead.last_name }}</h1>
+    
+    <!-- The form points to our new 'edit_deal' route. -->
+    <form action="{{ url_for('edit_deal', deal_id=deal.id) }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-4">
+            {{ form.status.label(class="block text-gray-700 font-semibold mb-2") }}
+            {{ form.status(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+        </div>
+
+        <div class="mb-4">
+            {{ form.contract_price.label(class="block text-gray-700 font-semibold mb-2") }}
+            {{ form.contract_price(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder="e.g., 15000.00") }}
+            {% if form.contract_price.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {% for error in form.contract_price.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-6">
+            {{ form.commission_rate.label(class="block text-gray-700 font-semibold mb-2") }}
+            {{ form.commission_rate(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder="e.g., 10.0 for 10%") }}
+             {% if form.commission_rate.errors %}
+                <div class="text-red-500 text-sm mt-1">
+                    {% for error in form.commission_rate.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div>
+            {{ form.submit(value='Save Changes', class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

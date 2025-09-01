@@ -1,0 +1,42 @@
+<!-- File: app/templates/login.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md">
+        <div class="bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">Sign In</h2>
+            <form action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                <div class="mb-4">
+                    {{ form.username.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                    {{ form.username(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", size=32) }}
+                    {% for error in form.username.errors %}
+                    <span class="text-red-500 text-xs italic">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="mb-6">
+                    {{ form.password.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+                    {{ form.password(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline", size=32) }}
+                    {% for error in form.password.errors %}
+                    <span class="text-red-500 text-xs italic">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="flex items-center justify-between mb-6">
+                    <label class="block text-gray-500 font-bold">
+                        {{ form.remember_me() }}
+                        <span class="text-sm">Remember Me</span>
+                    </label>
+                </div>
+                <div class="flex items-center justify-center">
+                    {{ form.submit(class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
+                </div>
+            </form>
+            <p class="text-center text-gray-500 text-xs mt-6">
+                New User? <a class="text-blue-600 hover:text-blue-800" href="{{ url_for('register') }}">Click to Register!</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+ 

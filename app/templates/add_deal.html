@@ -1,0 +1,34 @@
+<!-- This is the page for adding a new deal to a specific lead. -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md w-full max-w-lg mx-auto">
+    <!-- The title dynamically includes the lead's name for context. -->
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">Add Deal for {{ lead.first_name }} {{ lead.last_name }}</h1>
+    
+    <!-- Standard form structure, pointing to our new 'add_deal' route. -->
+    <form action="{{ url_for('add_deal', lead_id=lead.id) }}" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-4">
+            {{ form.status.label(class="block text-gray-700 font-semibold mb-2") }}
+            {{ form.status(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+        </div>
+
+        <div class="mb-4">
+            {{ form.contract_price.label(class="block text-gray-700 font-semibold mb-2") }}
+            {{ form.contract_price(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder="e.g., 15000.00") }}
+        </div>
+        
+        <div class="mb-6">
+            {{ form.commission_rate.label(class="block text-gray-700 font-semibold mb-2") }}
+            {{ form.commission_rate(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", placeholder="e.g., 10.0 for 10%") }}
+        </div>
+        
+        <div>
+            {{ form.submit(class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer") }}
+        </div>
+    </form>
+</div>
+{% endblock %}
+ 

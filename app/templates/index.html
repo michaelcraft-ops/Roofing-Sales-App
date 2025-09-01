@@ -1,0 +1,160 @@
+<!-- File: app/templates/index.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- PHASE 3: Goals & Activity Section -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Goals & Activity</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Goal Setting Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Your Annual Income Goal</h3>
+                <form method="POST" action="{{ url_for('index') }}" novalidate>
+                    {{ settings_form.hidden_tag() }}
+                    <div>
+                        {{ settings_form.annual_income_goal.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ settings_form.annual_income_goal(class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+                    </div>
+                    <div class="mt-4">
+                        <!-- MODIFIED: Changed to a standard input with a name attribute -->
+                        <input type="submit" name="submit_settings" value="Update Goal" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Daily Activity Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Log Today's Activity</h3>
+                <form method="POST" action="{{ url_for('index') }}" novalidate>
+                    {{ activity_form.hidden_tag() }}
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            {{ activity_form.doors_knocked.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ activity_form.doors_knocked(class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+                        </div>
+                        <div>
+                            {{ activity_form.appointments_set.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ activity_form.appointments_set(class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm") }}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <!-- MODIFIED: Changed to a standard input with a name attribute -->
+                        <input type="submit" name="submit_activity" value="Log Activity" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projections & Ratios Section -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Projections & Ratios</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Daily Goals Card -->
+            <div class="bg-white p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-4">
+                <h3 class="text-lg font-semibold text-gray-700 text-center">To Reach Your Goal, You Need To Average:</h3>
+                <div class="flex justify-around items-center mt-4 text-center">
+                    <div>
+                        <p class="text-4xl font-bold text-indigo-600">{{ "{:,.0f}".format(projections.daily_doors_goal) }}</p>
+                        <p class="text-gray-600">Doors Knocked Per Day</p>
+                    </div>
+                    <div>
+                        <p class="text-4xl font-bold text-indigo-600">{{ "{:,.1f}".format(projections.daily_appointments_goal) }}</p>
+                        <p class="text-gray-600">Appointments Set Per Day</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Historical Ratios -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Avg. Commission / Deal</h3>
+                <p class="text-3xl font-bold text-green-600 mt-2">${{ "{:,.2f}".format(projections.avg_commission) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Doors Knocked / Appt.</h3>
+                <p class="text-3xl font-bold text-yellow-500 mt-2">{{ "{:,.1f}".format(projections.doors_per_appointment) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Appts. Set / Deal</h3>
+                <p class="text-3xl font-bold text-yellow-500 mt-2">{{ "{:,.1f}".format(projections.appointments_per_deal) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Deals Still Needed</h3>
+                <p class="text-3xl font-bold text-blue-600 mt-2">{{ "{:,.1f}".format(projections.deals_needed) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Summary Section -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Financial Summary</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Total Pipeline Value</h3>
+                <p class="text-3xl font-bold text-blue-600 mt-2">${{ "{:,.2f}".format(pipeline_value) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Potential Commission</h3>
+                <p class="text-3xl font-bold text-yellow-500 mt-2">${{ "{:,.2f}".format(potential_commission) }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold text-gray-600">Earned Commission (Completed)</h3>
+                <p class="text-3xl font-bold text-green-600 mt-2">${{ "{:,.2f}".format(earned_commission) }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Leads Table -->
+    <div class="bg-white p-8 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">Current Leads</h1>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+                 <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deal Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for lead in leads %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ lead.first_name }} {{ lead.last_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ lead.email }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if lead.deals %}
+                                {% for deal in lead.deals %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            {{ 'bg-green-100 text-green-800' if deal.status == 'Job Completed' else 
+                                               'bg-blue-100 text-blue-800' if deal.status == 'Contract Signed' else 
+                                               'bg-yellow-100 text-yellow-800' }}">
+                                        {{ deal.status }}
+                                    </span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-gray-500 text-sm">No Deals</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ url_for('lead_detail', lead_id=lead.id) }}" class="text-indigo-600 hover:text-indigo-900">View Details</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">No leads found. Add one to get started!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
