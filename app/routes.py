@@ -104,15 +104,17 @@ def index():
     total_appointments_set = db.session.query(func.sum(DailyActivity.appointments_set)).filter_by(user_id=current_user.id).scalar() or 0
     signed_deals = Deal.query.join(Lead).filter(Lead.user_id == current_user.id, Deal.status.in_(['Contract Signed', 'Job Completed'])).all()
     total_signed_deals = len(signed_deals)
-    completed_deals_count = Deal.query.join(Lead).filter(
+    completed_deals = Deal.query.join(Lead).filter(
         Lead.user_id == current_user.id, 
         Deal.status == 'Job Completed'
-    ).count()
+    ).all()
+    completed_deals_count = len(completed_deals)
 
+    # Calculate the historical completion rate
     completion_rate = completed_deals_count / total_signed_deals if total_signed_deals > 0 else 0
     
-    
-    avg_commission_per_deal = (sum(d.contract_price * (d.commission_rate / 100) for d in signed_deals)) / total_signed_deals if total_signed_deals > 0 else 0
+    # Calculate avg commission based ONLY on completed deals
+    avg_commission_per_deal = (sum(d.contract_price * (d.commission_rate / 100) for d in completed_deals)) / completed_deals_count if completed_deals_count > 0 else 0
     doors_per_appointment = total_doors_knocked / total_appointments_set if total_appointments_set > 0 else 0
     appointments_per_deal = total_appointments_set / total_signed_deals if total_signed_deals > 0 else 0
 
