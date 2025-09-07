@@ -104,6 +104,13 @@ def index():
     total_appointments_set = db.session.query(func.sum(DailyActivity.appointments_set)).filter_by(user_id=current_user.id).scalar() or 0
     signed_deals = Deal.query.join(Lead).filter(Lead.user_id == current_user.id, Deal.status.in_(['Contract Signed', 'Job Completed'])).all()
     total_signed_deals = len(signed_deals)
+    completed_deals_count = Deal.query.join(Lead).filter(
+        Lead.user_id == current_user.id, 
+        Deal.status == 'Job Completed'
+    ).count()
+
+    completion_rate = completed_deals_count / total_signed_deals if total_signed_deals > 0 else 0
+    
     
     avg_commission_per_deal = (sum(d.contract_price * (d.commission_rate / 100) for d in signed_deals)) / total_signed_deals if total_signed_deals > 0 else 0
     doors_per_appointment = total_doors_knocked / total_appointments_set if total_appointments_set > 0 else 0
@@ -113,7 +120,7 @@ def index():
     remaining_commission_goal = settings.annual_income_goal - earned_commission
     remaining_commission_goal = max(0, remaining_commission_goal)
 
-    deals_needed = remaining_commission_goal / avg_commission_per_deal if avg_commission_per_deal > 0 else 0
+    deals_needed = (remaining_commission_goal / avg_commission_per_deal) / completion_rate if avg_commission_per_deal > 0 and completion_rate > 0 else 0
     appointments_needed = deals_needed * appointments_per_deal
     doors_needed_total = appointments_needed * doors_per_appointment
 
@@ -123,7 +130,8 @@ def index():
     projections = {
         'avg_commission': avg_commission_per_deal, 'doors_per_appointment': doors_per_appointment,
         'appointments_per_deal': appointments_per_deal, 'deals_needed': deals_needed,
-        'daily_appointments_goal': daily_appointments_goal, 'daily_doors_goal': daily_doors_goal
+        'daily_appointments_goal': daily_appointments_goal, 'daily_doors_goal': daily_doors_goal,
+        'completion_rate': completion_rate
     }
 
     return render_template('index.html', title='Dashboard', leads=leads, 
