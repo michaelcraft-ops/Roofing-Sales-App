@@ -296,9 +296,9 @@ def manual_projector():
             # --- Work Backwards to Find Daily Goals ---
             target_deals_per_day = target_deals_needed / days if days > 0 else 0
             
-            target_signs_per_day = (Decimal(target_deals_per_day) / sign_to_complete_ratio) if sign_to_complete_ratio > 0 else 0
-            target_appts_per_day = (Decimal(target_signs_per_day) / appt_to_sign_ratio) if appt_to_sign_ratio > 0 else 0
-            target_knocks_per_day = (Decimal(target_appts_per_day) / knock_to_appt_ratio) if knock_to_appt_ratio > 0 else 0
+            target_signs_per_day = (Decimal(target_deals_per_day)) / (Decimal(sign_to_complete_ratio)) if sign_to_complete_ratio > 0 else 0
+            target_appts_per_day = (Decimal(target_signs_per_day)) / (Decimal(appt_to_sign_ratio)) if appt_to_sign_ratio > 0 else 0
+            target_knocks_per_day = (Decimal(target_appts_per_day)) / (Decimal(knock_to_appt_ratio)) if knock_to_appt_ratio > 0 else 0
 
             results = {
                 'daily_knocks': target_knocks_per_day,
