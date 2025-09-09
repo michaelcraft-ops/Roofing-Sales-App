@@ -4,11 +4,16 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-8 offset-md-2">
+            
+            <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">
+                &larr; Back to Dashboard
+            </a>
+
             <h1 class="mb-4 text-center">Manual Sales Projector</h1>
             <p class="lead text-center mb-4">
                 Enter your historical sales data to calculate the daily activity needed to reach your income goal.
             </p>
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-body">
                     <form action="" method="post" novalidate>
                         {{ form.hidden_tag() }}
@@ -59,7 +64,38 @@
                     </form>
                 </div>
             </div>
+
+            {% if results %}
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Your Daily Goals</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="stat-card p-3">
+                                <h5 class="stat-title">Doors to Knock</h5>
+                                <p class="stat-number display-4">{{ results.daily_knocks | round(1) }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card p-3">
+                                <h5 class="stat-title">Appointments to Set</h5>
+                                <p class="stat-number display-4">{{ results.daily_appointments | round(1) }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card p-3">
+                                <h5 class="stat-title">Deals to Sign</h5>
+                                <p class="stat-number display-4">{{ results.daily_deals_signed | round(1) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

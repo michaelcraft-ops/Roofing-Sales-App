@@ -260,10 +260,53 @@ def delete_deal(deal_id):
 
 # File: app/routes.py
 
+# File: app/routes.py
+
 @app.route('/manual_projector', methods=['GET', 'POST'])
 @login_required
 def manual_projector():
     form = ManualProjectorForm()
-    # Logic for form submission will go here later
-    return render_template('manual_projector.html', title='Manual Projector', form=form)
+    results = None  # Initialize results to None
+
+    if form.validate_on_submit():
+        # --- Safely get data from the form ---
+        income_goal = form.income_goal.data
+        days = form.days_to_forecast.data
+        knocks = form.doors_knocked.data
+        appts = form.appointments_set.data
+        signs = form.deals_signed.data
+        completes = form.deals_completed.data
+        total_rcv = form.total_rcv.data
+
+        try:
+            # --- Calculate Historical Ratios (handle division by zero) ---
+            avg_rcv = total_rcv / completes if completes > 0 else 0
+            knock_to_appt_ratio = appts / knocks if knocks > 0 else 0
+            appt_to_sign_ratio = signs / appts if appts > 0 else 0
+            sign_to_complete_ratio = completes / signs if signs > 0 else 0
+
+            # --- Calculate Commission and Target Deals ---
+            # Using the user's settings for margin and commission rate
+            avg_profit = avg_rcv * (current_user.company_margin / 100)
+            commission_per_deal = avg_profit * (current_user.commission_rate / 100)
+            
+            target_deals_needed = income_goal / commission_per_deal if commission_per_deal > 0 else 0
+            
+            # --- Work Backwards to Find Daily Goals ---
+            target_deals_per_day = target_deals_needed / days if days > 0 else 0
+            
+            target_signs_per_day = target_deals_per_day / sign_to_complete_ratio if sign_to_complete_ratio > 0 else 0
+            target_appts_per_day = target_signs_per_day / appt_to_sign_ratio if appt_to_sign_ratio > 0 else 0
+            target_knocks_per_day = target_appts_per_day / knock_to_appt_ratio if knock_to_appt_ratio > 0 else 0
+
+            results = {
+                'daily_knocks': target_knocks_per_day,
+                'daily_appointments': target_appts_per_day,
+                'daily_deals_signed': target_signs_per_day
+            }
+
+        except ZeroDivisionError:
+            flash('Cannot calculate with zero values in historical data. Please enter valid numbers.', 'danger')
+        
+    return render_template('manual_projector.html', title='Manual Projector', form=form, results=results)
 
