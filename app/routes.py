@@ -8,6 +8,7 @@ from app.forms import LeadForm, DealForm, SettingsForm, DailyActivityForm, Login
 from app.models import Lead, Deal, Settings, DailyActivity, User
 from datetime import date
 from app.forms import LoginForm, RegistrationForm, LeadForm, DealForm, ManualProjectorForm
+from decimal import Decimal
 from sqlalchemy import func
 from flask_login import login_user, logout_user, current_user, login_required
 
@@ -287,8 +288,8 @@ def manual_projector():
 
             # --- Calculate Commission and Target Deals ---
             # Using the user's settings for margin and commission rate
-            avg_profit = avg_rcv * (current_user.company_margin / 100)
-            commission_per_deal = avg_profit * (current_user.commission_rate / 100)
+            avg_profit = avg_rcv * (Decimal(current_user.company_margin) / 100)
+            commission_per_deal = avg_profit * (Decimal(current_user.commission_rate) / 100)
             
             target_deals_needed = income_goal / commission_per_deal if commission_per_deal > 0 else 0
             
