@@ -1,9 +1,10 @@
 # File: app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, SelectField, FloatField, IntegerField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, Email, Optional, ValidationError, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, TextAreaField, DecimalField, SelectField, FloatField
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length, NumberRange, Optional
 from app.models import User # NEW: Import the User model to check for existing users
+
 
 # --- Lead Form ---
 class LeadForm(FlaskForm):
@@ -68,4 +69,22 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+        
+class ManualProjectorForm(FlaskForm):
+    income_goal = IntegerField('Annual Income Goal', 
+                               validators=[DataRequired(), NumberRange(min=0)])
+    days_to_forecast = IntegerField('Number of Days to Forecast', 
+                                    validators=[DataRequired(), NumberRange(min=1)])
+    doors_knocked = IntegerField('Historical: Total Doors Knocked', 
+                                 validators=[DataRequired(), NumberRange(min=0)])
+    appointments_set = IntegerField('Historical: Total Appointments Set', 
+                                    validators=[DataRequired(), NumberRange(min=0)])
+    deals_signed = IntegerField('Historical: Total Deals Signed', 
+                                validators=[DataRequired(), NumberRange(min=0)])
+    deals_completed = IntegerField('Historical: Total Deals Completed', 
+                                   validators=[DataRequired(), NumberRange(min=0)])
+    total_rcv = DecimalField('Historical: Total RCV from Completed Deals', 
+                             validators=[DataRequired(), NumberRange(min=0)],
+                             places=2)
+    submit = SubmitField('Calculate Forecast')
 

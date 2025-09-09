@@ -7,6 +7,7 @@ from app import app, db
 from app.forms import LeadForm, DealForm, SettingsForm, DailyActivityForm, LoginForm, RegistrationForm
 from app.models import Lead, Deal, Settings, DailyActivity, User
 from datetime import date
+from app.forms import LoginForm, RegistrationForm, LeadForm, DealForm, ManualProjectorForm
 from sqlalchemy import func
 from flask_login import login_user, logout_user, current_user, login_required
 
@@ -256,4 +257,13 @@ def delete_deal(deal_id):
     db.session.commit()
     flash('The deal has been deleted.', 'success')
     return redirect(url_for('lead_detail', lead_id=lead_id))
+
+# File: app/routes.py
+
+@app.route('/manual_projector', methods=['GET', 'POST'])
+@login_required
+def manual_projector():
+    form = ManualProjectorForm()
+    # Logic for form submission will go here later
+    return render_template('manual_projector.html', title='Manual Projector', form=form)
 

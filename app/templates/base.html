@@ -21,6 +21,7 @@
                 <div class="flex items-center space-x-4">
                     {% if current_user.is_authenticated %}
                         <span class="text-gray-800">Welcome, {{ current_user.username }}!</span>
+                        <a href="{{ url_for('manual_projector') }}" class="text-gray-600 hover:text-gray-800">Manual Projector</a>
                         <a href="{{ url_for('add_lead') }}" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700">Add New Lead</a>
                         <a href="{{ url_for('logout') }}" class="text-gray-600 hover:text-gray-800">Logout</a>
                     {% else %}

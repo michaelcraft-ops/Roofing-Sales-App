@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4 text-center">Manual Sales Projector</h1>
+            <p class="lead text-center mb-4">
+                Enter your historical sales data to calculate the daily activity needed to reach your income goal.
+            </p>
+            <div class="card">
+                <div class="card-body">
+                    <form action="" method="post" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <h5 class="card-title">Goals</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.income_goal.label(class="form-label") }}
+                                {{ form.income_goal(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.days_to_forecast.label(class="form-label") }}
+                                {{ form.days_to_forecast(class="form-control") }}
+                            </div>
+                        </div>
+                        
+                        <hr>
+
+                        <h5 class="card-title mt-4">Historical Performance</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.doors_knocked.label(class="form-label") }}
+                                {{ form.doors_knocked(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.appointments_set.label(class="form-label") }}
+                                {{ form.appointments_set(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.deals_signed.label(class="form-label") }}
+                                {{ form.deals_signed(class="form-control") }}
+                            </div>
+                             <div class="col-md-6 mb-3">
+                                {{ form.deals_completed.label(class="form-label") }}
+                                {{ form.deals_completed(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            {{ form.total_rcv.label(class="form-label") }}
+                            {{ form.total_rcv(class="form-control") }}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
