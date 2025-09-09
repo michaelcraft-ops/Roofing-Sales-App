@@ -23,6 +23,8 @@ class User(UserMixin, db.Model):
 
     # Define the one-to-many relationships. One user can have many leads, activities, etc.
     leads = db.relationship('Lead', backref='author', lazy='dynamic')
+    company_margin = db.Column(db.Float, nullable=False, default=30.0) # Represents 30%
+    commission_rate = db.Column(db.Float, nullable=False, default=40.0) # Represents 40%
     daily_activities = db.relationship('DailyActivity', backref='author', lazy='dynamic')
     settings = db.relationship('Settings', backref='author', lazy='dynamic')
 
