@@ -1,101 +1,96 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            
-            <a href="{{ url_for('index') }}" class="btn btn-secondary mb-3">
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-0 mb-6">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">Manual Sales Projector</h1>
+            <a href="{{ url_for('index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 &larr; Back to Dashboard
             </a>
+        </div>
+        <p class="mt-1 text-sm text-gray-600">
+            Enter your historical sales data to calculate the daily activity needed to reach your income goal.
+        </p>
+    </div>
 
-            <h1 class="mb-4 text-center">Manual Sales Projector</h1>
-            <p class="lead text-center mb-4">
-                Enter your historical sales data to calculate the daily activity needed to reach your income goal.
-            </p>
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form action="" method="post" novalidate>
-                        {{ form.hidden_tag() }}
+    <div class="flex flex-col lg:flex-row lg:space-x-8">
 
-                        <h5 class="card-title">Goals</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.income_goal.label(class="form-label") }}
-                                {{ form.income_goal(class="form-control") }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.days_to_forecast.label(class="form-label") }}
-                                {{ form.days_to_forecast(class="form-control") }}
-                            </div>
-                        </div>
-                        
-                        <hr>
+        <div class="lg:w-1/2">
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <form action="" method="post" novalidate>
+                    {{ form.hidden_tag() }}
 
-                        <h5 class="card-title mt-4">Historical Performance</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.doors_knocked.label(class="form-label") }}
-                                {{ form.doors_knocked(class="form-control") }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.appointments_set.label(class="form-label") }}
-                                {{ form.appointments_set(class="form-control") }}
-                            </div>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3">Goals</h3>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            {{ form.income_goal.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.income_goal(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.deals_signed.label(class="form-label") }}
-                                {{ form.deals_signed(class="form-control") }}
-                            </div>
-                             <div class="col-md-6 mb-3">
-                                {{ form.deals_completed.label(class="form-label") }}
-                                {{ form.deals_completed(class="form-control") }}
-                            </div>
+                        <div>
+                            {{ form.days_to_forecast.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.days_to_forecast(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
                         </div>
-                        <div class="mb-3">
-                            {{ form.total_rcv.label(class="form-label") }}
-                            {{ form.total_rcv(class="form-control") }}
+                    </div>
+
+                    <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3 mt-8">Historical Performance</h3>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            {{ form.doors_knocked.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.doors_knocked(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
                         </div>
-                        
-                        <div class="d-grid">
-                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        <div>
+                            {{ form.appointments_set.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.appointments_set(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
                         </div>
-                    </form>
-                </div>
+                        <div>
+                            {{ form.deals_signed.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.deals_signed(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+                        </div>
+                        <div>
+                            {{ form.deals_completed.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.deals_completed(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        {{ form.total_rcv.label(class="block text-sm font-medium text-gray-700") }}
+                        {{ form.total_rcv(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+                    </div>
+
+                    <div class="mt-8">
+                        {{ form.submit(class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
+                    </div>
+                </form>
             </div>
+        </div>
 
+        <div class="lg:w-1/2 mt-8 lg:mt-0">
             {% if results %}
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Your Daily Goals</h4>
-                </div>
-                <div class="card-body text-center">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="stat-card p-3">
-                                <h5 class="stat-title">Doors to Knock</h5>
-                                <p class="stat-number display-4">{{ results.daily_knocks | round(1) }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="stat-card p-3">
-                                <h5 class="stat-title">Appointments to Set</h5>
-                                <p class="stat-number display-4">{{ results.daily_appointments | round(1) }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="stat-card p-3">
-                                <h5 class="stat-title">Deals to Sign</h5>
-                                <p class="stat-number display-4">{{ results.daily_deals_signed | round(1) }}</p>
-                            </div>
-                        </div>
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3">Your Daily Goals</h3>
+                <div class="mt-4 space-y-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Doors to Knock</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ results.daily_knocks | round(1) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Appointments to Set</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ results.daily_appointments | round(1) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Deals to Sign</p>
+                        <p class="text-3xl font-bold text-gray-900">{{ results.daily_deals_signed | round(1) }}</p>
                     </div>
                 </div>
             </div>
+            {% else %}
+            <div class="bg-white shadow-md rounded-lg p-6 text-center">
+                <h3 class="text-lg font-medium text-gray-900">Your results will appear here</h3>
+                <p class="mt-2 text-sm text-gray-500">Fill out the form on the left and click "Calculate Forecast" to see your daily targets.</p>
+            </div>
             {% endif %}
-
         </div>
+
     </div>
 </div>
 {% endblock %}
