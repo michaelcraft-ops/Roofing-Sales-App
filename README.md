@@ -42,7 +42,8 @@ This application was built to solve a common problem for commission-based salesp
 <img width="1920" height="1003" alt="Screenshot (304)" src="https://github.com/user-attachments/assets/7a7dc9a4-a6c9-4790-8c7b-737259068d9b" />
 <img width="1920" height="1011" alt="Screenshot (302)" src="https://github.com/user-attachments/assets/93f89c1e-a0a2-4ed8-bc29-50bf96c15de4" />
 <img width="1920" height="996" alt="Screenshot (301)" src="https://github.com/user-attachments/assets/4513fbfd-477b-4888-a358-c5ef4d4c68fc" />
- 
+ <img width="905" height="757" alt="Screenshot (341)" src="https://github.com/user-attachments/assets/c1748acd-b857-4fd0-b97d-ba08d4a7eeb9" />
+
 
 ---
 
