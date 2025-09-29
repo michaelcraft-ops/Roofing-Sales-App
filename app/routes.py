@@ -2,6 +2,8 @@
 
 # This file defines the URLs for our website and the logic that handles requests.
 
+# File: app/routes.py
+from app.services.projector import Ratios, projector_metrics  # NEW
 from flask import render_template, flash, redirect, url_for, request, abort
 from app import app, db
 from app.forms import LeadForm, DealForm, SettingsForm, DailyActivityForm, LoginForm, RegistrationForm
@@ -267,47 +269,67 @@ def delete_deal(deal_id):
 @login_required
 def manual_projector():
     form = ManualProjectorForm()
-    results = None  # Initialize results to None
+    results, error = None, None
 
     if form.validate_on_submit():
-        # --- Safely get data from the form ---
-        income_goal = form.income_goal.data
-        days = form.days_to_forecast.data
-        knocks = form.doors_knocked.data
-        appts = form.appointments_set.data
-        signs = form.deals_signed.data
-        completes = form.deals_completed.data
-        total_rcv = form.total_rcv.data
+        # Parse
+        income_goal = float(form.income_goal.data or 0)
+        days        = int(form.days_to_forecast.data or 0)
+        knocks      = int(form.doors_knocked.data or 0)
+        appts       = int(form.appointments_set.data or 0)
+        signs       = int(form.deals_signed.data or 0)
+        completes   = int(form.deals_completed.data or 0)
+        total_rcv   = float(form.total_rcv.data or 0)
 
         try:
-            # --- Calculate Historical Ratios (handle division by zero) ---
-            avg_rcv = total_rcv / completes if completes > 0 else 0
-            knock_to_appt_ratio = appts / knocks if knocks > 0 else 0
-            appt_to_sign_ratio = signs / appts if appts > 0 else 0
-            sign_to_complete_ratio = completes / signs if signs > 0 else 0
+            # Guardrails
+            if days <= 0:
+                raise ValueError("Days must be > 0.")
+            if appts <= 0 or signs <= 0 or completes <= 0 or total_rcv <= 0:
+                raise ValueError("Historical totals must be > 0.")
 
-            # --- Calculate Commission and Target Deals ---
-            # Using the user's settings for margin and commission rate
-            avg_profit = avg_rcv * (Decimal(current_user.company_margin) / 100)
-            commission_per_deal = avg_profit * (Decimal(current_user.commission_rate) / 100)
-            
-            target_deals_needed = income_goal / commission_per_deal if commission_per_deal > 0 else 0
-            
-            # --- Work Backwards to Find Daily Goals ---
-            target_deals_per_day = target_deals_needed / days if days > 0 else 0
-            
-            target_signs_per_day = (Decimal(target_deals_per_day)) / (Decimal(sign_to_complete_ratio)) if sign_to_complete_ratio > 0 else 0
-            target_appts_per_day = (Decimal(target_signs_per_day)) / (Decimal(appt_to_sign_ratio)) if appt_to_sign_ratio > 0 else 0
-            target_knocks_per_day = (Decimal(target_appts_per_day)) / (Decimal(knock_to_appt_ratio)) if knock_to_appt_ratio > 0 else 0
+            # Ratios
+            ratios = Ratios(
+                doors_per_appt = knocks / appts,
+                appts_per_deal = appts / signs,
+                avg_rcv_per_completed_deal = total_rcv / completes,
+            )
+
+            # Math (current behavior = commission on profit using user defaults)
+            metrics = projector_metrics(
+            annual_goal=income_goal,
+            days=days,
+            ratios=ratios,
+            commission_pct=commission_pct,           # percent
+            company_margin_pct=company_margin,       # percent
+            commission_base=commission_base,         # 'profit' or 'revenue'
+            )
+
+            # Convert completed→signed
+            sign_to_complete_ratio = completes / signs
+            if sign_to_complete_ratio <= 0:
+                raise ValueError("Invalid sign→complete ratio.")
+
+            deals_signed_per_day = metrics["deals_per_day"] / sign_to_complete_ratio
+            appts_per_day        = deals_signed_per_day * ratios.appts_per_deal
+            doors_per_day        = appts_per_day * ratios.doors_per_appt
 
             results = {
-                'daily_knocks': target_knocks_per_day,
-                'daily_appointments': target_appts_per_day,
-                'daily_deals_signed': target_signs_per_day
+                "daily_knocks":       doors_per_day,
+                "daily_appointments": appts_per_day,
+                "daily_deals_signed": deals_signed_per_day,
             }
 
-        except ZeroDivisionError:
-            flash('Cannot calculate with zero values in historical data. Please enter valid numbers.', 'danger')
-        
-    return render_template('manual_projector.html', title='Manual Projector', form=form, results=results)
+        except Exception as e:
+            error = str(e)
+
+    return render_template(
+        "manual_projector.html",
+        title="Manual Projector",
+        form=form,
+        results=results,
+        error=error,
+    )
+
+    
 

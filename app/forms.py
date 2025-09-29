@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, TextAreaField, DecimalField, SelectField, FloatField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length, NumberRange, Optional
 from app.models import User # NEW: Import the User model to check for existing users
-
+from wtforms import RadioField  # add import
 
 # --- Lead Form ---
 class LeadForm(FlaskForm):
@@ -88,3 +88,13 @@ class ManualProjectorForm(FlaskForm):
                              places=2)
     submit = SubmitField('Calculate Forecast')
 
+class ManualProjectorForm(FlaskForm):
+    # keep your existing fields...
+    commission_base = RadioField(
+        'Commission Base',
+        choices=[('profit','Company profit'), ('revenue','Total sales price / RCV')],
+        default='profit'
+    )
+    company_margin = DecimalField('Company margin (%)', places=1, default=30)
+    commission_rate = DecimalField('Commission rate (%)', places=1, default=40)
+    # keep submit
