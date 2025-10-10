@@ -119,12 +119,12 @@
             <div class="px-6 pb-6">
     <h4 class="mt-4 text-sm font-semibold text-gray-700">Commission</h4>
     <div class="mt-2 text-sm text-gray-600 space-y-1">
-      <div>Base: {{ results.assumptions.commission_base }}</div>
+      <div>Base: <span data-assump="base">{{ results.assumptions.commission_base }}</span></div>
       {% if results.assumptions.commission_base == 'profit' %}
-      <div>Company margin: {{ results.assumptions.company_margin_pct }}%</div>
+    <div>Company margin: <span data-assump="margin">{{ results.assumptions.company_margin_pct }}</span>%</div>
       {% endif %}
-      <div>Commission rate: {{ results.assumptions.commission_pct }}%</div>
-      <div>Effective on revenue: {{ results.percents.effective_on_revenue|round(2) }}%</div>
+      <div>Commission rate: <span data-assump="rate">{{ results.assumptions.commission_pct }}</span>%</div>
+      <div>Effective on revenue: <span data-pct="eff">{{ results.percents.effective_on_revenue|round(2) }}</span>%</div>
       <div>Avg commission / deal: ${{ results.avg_comm_per_deal|round(2) }}</div>
     </div>
 
@@ -173,7 +173,10 @@
                     </div>
                     <div class="ml-4">
                         <dt class="text-sm font-medium text-gray-500 truncate">Doors to Knock</dt>
-                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ results.daily_knocks | round(1) }}</dd>
+                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"
+                            data-kpi="doors_per_day">
+                        {{ results.daily_knocks | round(1) if results else 0 }}
+                        </dd>
                     </div>
                 </div>
                 <div class="bg-white p-6 flex items-center">
@@ -184,7 +187,10 @@
                     </div>
                     <div class="ml-4">
                         <dt class="text-sm font-medium text-gray-500 truncate">Appointments to Set</dt>
-                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ results.daily_appointments | round(1) }}</dd>
+                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"
+                            data-kpi="appts_per_day">
+                        {{ results.daily_appointments | round(1) if results else 0 }}
+                        </dd>
                     </div>
                 </div>
                 <div class="bg-gray-50 p-6 flex items-center">
@@ -195,7 +201,11 @@
                     </div>
                     <div class="ml-4">
                         <dt class="text-sm font-medium text-gray-500 truncate">Deals to Sign</dt>
-                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ results.daily_deals_signed | round(1) }}</dd>
+                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"
+                            data-kpi="deals_per_day">
+                        {{ results.daily_deals_signed | round(1) if results else 0 }}
+                        </dd>
+
                     </div>
                 </div>
             </dl>
@@ -217,4 +227,37 @@
 
     </div>
 </div>
+<!-- Manual Projector: bootstrap fetch (no DOM writes yet) -->
+<script id="manual-projector-updater">
+  async function loadManualProjector() {
+    try {
+      const res = await fetch('/manual_projector.json', {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      console.table(data);
+        // Update assumption: base
+        const elBase = document.querySelector('[data-assump="base"]');
+        if (elBase && data.assumptions?.commission_base) {
+            elBase.textContent = data.assumptions.commission_base;
+        }
+        // Update assumption: margin
+        const elMargin = document.querySelector('[data-assump="margin"]');
+        if (elMargin && data.assumptions?.company_margin_pct !== undefined) {
+        elMargin.textContent = data.assumptions.company_margin_pct;
+        }
+        // Update assumption: rate
+        const elRate = document.querySelector('[data-assump="rate"]');
+        if (elRate && data.assumptions?.commission_pct !== undefined) {
+        elRate.textContent = data.assumptions.commission_pct;
+        }
+      console.log('[manual_projector] loaded', data);
+      // DOM updates come next step
+    } catch (err) {
+      console.error('[manual_projector] fetch failed', err);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', loadManualProjector);
+</script>
 {% endblock %}

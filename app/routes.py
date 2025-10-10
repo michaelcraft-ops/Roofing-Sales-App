@@ -13,6 +13,8 @@ from app.forms import LoginForm, RegistrationForm, LeadForm, DealForm, ManualPro
 from decimal import Decimal
 from sqlalchemy import func
 from flask_login import login_user, logout_user, current_user, login_required
+from flask import jsonify  # add
+
 
 # --- User Authentication Routes ---
 
@@ -263,8 +265,6 @@ def delete_deal(deal_id):
 
 # File: app/routes.py
 
-# File: app/routes.py
-
 @app.route('/manual_projector', methods=['GET', 'POST'])
 @login_required
 def manual_projector():
@@ -296,13 +296,18 @@ def manual_projector():
             )
 
             # Math (current behavior = commission on profit using user defaults)
+            # File: app/routes.py  
+            commission_base = (request.form.get('commission_base') or 'profit').strip()
+            commission_pct  = float((request.form.get('commission_rate') or current_user.commission_rate or 0))
+            company_margin  = float((request.form.get('company_margin') or current_user.company_margin or 0))
+
             metrics = projector_metrics(
-            annual_goal=income_goal,
-            days=days,
-            ratios=ratios,
-            commission_pct=commission_pct,           # percent
-            company_margin_pct=company_margin,       # percent
-            commission_base=commission_base,         # 'profit' or 'revenue'
+                annual_goal=income_goal,
+                days=days,
+                ratios=ratios,
+                commission_pct=commission_pct,
+                company_margin_pct=company_margin,
+                commission_base=commission_base,
             )
 
             # Convert completed→signed
@@ -320,6 +325,34 @@ def manual_projector():
                 "daily_deals_signed": deals_signed_per_day,
             }
 
+            # File: app/routes.py  
+            door_to_appt_pct   = (appts / knocks * 100.0) if knocks > 0 else 0.0
+            appt_to_sign_pct   = (signs / appts * 100.0) if appts  > 0 else 0.0
+            sign_to_comp_pct   = (completes / signs * 100.0) if signs > 0 else 0.0
+            avg_rcv_per_deal   = ratios.avg_rcv_per_completed_deal
+            eff_pct            = metrics["eff_rate"] * 100.0
+            avg_comm_per_deal  = metrics["avg_comm_per_deal"]
+
+            results.update({
+                "assumptions": {
+                    "commission_base": commission_base,
+                    "company_margin_pct": company_margin if commission_base == "profit" else 0.0,
+                    "commission_pct": commission_pct,
+                },
+                "ratios": {
+                    "doors_per_appt": ratios.doors_per_appt,
+                    "appts_per_deal": ratios.appts_per_deal,
+                    "avg_rcv_per_completed_deal": avg_rcv_per_deal,
+                },
+                "percents": {
+                    "door_to_appt": door_to_appt_pct,
+                    "appt_to_sign": appt_to_sign_pct,
+                    "sign_to_complete": sign_to_comp_pct,
+                    "effective_on_revenue": eff_pct,
+                },
+                "avg_comm_per_deal": avg_comm_per_deal,
+            })
+    
         except Exception as e:
             error = str(e)
 
@@ -330,6 +363,65 @@ def manual_projector():
         results=results,
         error=error,
     )
+@app.route('/manual_projector.json', methods=['POST'])
+@login_required
+def manual_projector_json():
+    data = request.get_json(force=True)
+
+    income_goal = float(data.get('income_goal', 0))
+    days        = int(data.get('days_to_forecast', 0))
+    knocks      = int(data.get('doors_knocked', 0))
+    appts       = int(data.get('appointments_set', 0))
+    signs       = int(data.get('deals_signed', 0))
+    completes   = int(data.get('deals_completed', 0))
+    total_rcv   = float(data.get('total_rcv', 0))
+    commission_base = (data.get('commission_base') or 'profit').strip()
+    commission_pct  = float(data.get('commission_rate', current_user.commission_rate))
+    company_margin  = float(data.get('company_margin', current_user.company_margin))
+
+    if days<=0 or appts<=0 or signs<=0 or completes<=0 or total_rcv<=0:
+        return jsonify({"error":"All inputs must be > 0"}), 400
+
+    ratios = Ratios(
+        doors_per_appt = knocks / appts,
+        appts_per_deal = appts / signs,
+        avg_rcv_per_completed_deal = total_rcv / completes,
+    )
+    metrics = projector_metrics(
+        annual_goal=income_goal,
+        days=days,
+        ratios=ratios,
+        commission_pct=commission_pct,
+        company_margin_pct=company_margin,
+        commission_base=commission_base,
+    )
+
+    sign_to_complete_ratio = completes / signs
+    deals_signed_per_day = metrics["deals_per_day"] / sign_to_complete_ratio
+    appts_per_day  = deals_signed_per_day * ratios.appts_per_deal
+    doors_per_day  = appts_per_day * ratios.doors_per_appt
+
+    return jsonify({
+        "deals_per_day": deals_signed_per_day,
+        "appts_per_day": appts_per_day,
+        "doors_per_day": doors_per_day,
+        "assumptions": {
+            "commission_base": commission_base,
+            "company_margin_pct": company_margin if commission_base=="profit" else 0.0,
+            "commission_pct": commission_pct,
+        },
+        "percents": {
+            "door_to_appt": appts/knocks*100 if knocks>0 else 0,
+            "appt_to_sign": signs/appts*100,
+            "sign_to_complete": completes/signs*100,
+            "effective_on_revenue": metrics["eff_rate"]*100,
+        },
+        "avg_comm_per_deal": metrics["avg_comm_per_deal"],
+        "ratios": {"avg_rcv_per_completed_deal": ratios.avg_rcv_per_completed_deal},
+    })
+    
+            
+
 
     
 

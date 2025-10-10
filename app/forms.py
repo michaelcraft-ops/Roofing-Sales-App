@@ -1,8 +1,11 @@
 # File: app/forms.py
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, TextAreaField, DecimalField, SelectField, FloatField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Length, NumberRange, Optional
+from wtforms import (
+    StringField, PasswordField, BooleanField, SubmitField, IntegerField,
+    TextAreaField, DecimalField, SelectField, FloatField, RadioField
+)
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, NumberRange, Optional
 from app.models import User # NEW: Import the User model to check for existing users
 from wtforms import RadioField  # add import
 
@@ -89,12 +92,34 @@ class ManualProjectorForm(FlaskForm):
     submit = SubmitField('Calculate Forecast')
 
 class ManualProjectorForm(FlaskForm):
-    # keep your existing fields...
+    # Goals
+    income_goal = DecimalField(
+        'Annual Income Goal ($)', validators=[DataRequired(), NumberRange(min=0)], places=2
+    )
+    days_to_forecast = IntegerField(
+        'Number of Days to Forecast', validators=[DataRequired(), NumberRange(min=1)]
+    )
+
+    # Commission config
     commission_base = RadioField(
         'Commission Base',
-        choices=[('profit','Company profit'), ('revenue','Total sales price / RCV')],
-        default='profit'
+        choices=[('profit', 'Company profit'), ('revenue', 'Total sales price / RCV')],
+        default='profit', validators=[DataRequired()]
     )
-    company_margin = DecimalField('Company margin (%)', places=1, default=30)
-    commission_rate = DecimalField('Commission rate (%)', places=1, default=40)
+    company_margin = DecimalField(
+        'Company margin (%)', validators=[NumberRange(min=0, max=100)], default=30, places=1
+    )
+    commission_rate = DecimalField(
+        'Commission rate (%)', validators=[DataRequired(), NumberRange(min=0, max=100)],
+        default=40, places=1
+    )
+
+    # Historical totals
+    doors_knocked   = IntegerField('Historical: Total Doors Knocked',   validators=[DataRequired(), NumberRange(min=1)])
+    appointments_set= IntegerField('Historical: Total Appointments Set',validators=[DataRequired(), NumberRange(min=1)])
+    deals_signed    = IntegerField('Historical: Total Deals Signed',    validators=[DataRequired(), NumberRange(min=1)])
+    deals_completed = IntegerField('Historical: Total Deals Completed', validators=[DataRequired(), NumberRange(min=1)])
+    total_rcv       = DecimalField('Historical: Total RCV from Completed Deals ($)', validators=[DataRequired(), NumberRange(min=1)], places=2)
+
+    submit = SubmitField('Calculate Forecast')
     # keep submit
