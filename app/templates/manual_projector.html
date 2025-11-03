@@ -1,263 +1,338 @@
+# manual_projector.html
+
 {% extends "base.html" %}
+{% block extra_head %}
+<style>
+@keyframes mp-flash { 0% { background:#fffbeb; } 100% { background:transparent; } }
+.mp-flash-once { animation: mp-flash 600ms ease-out 1; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="px-4 sm:px-0 mb-6">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-gray-900">Manual Sales Projector</h1>
-            <a href="{{ url_for('index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                &larr; Back to Dashboard
-            </a>
-        </div>
-        <p class="mt-1 text-sm text-gray-600">
-            Enter your historical sales data to calculate the daily activity needed to reach your income goal.
-        </p>
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="px-4 sm:px-0 mb-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-900">Manual Sales Projector</h1>
+      <a href="{{ url_for('index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        &larr; Back to Dashboard
+      </a>
     </div>
-
-    <div class="flex flex-col lg:flex-row lg:space-x-8">
-
-        <div class="lg:w-1/2">
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <form action="" method="post" novalidate>
-                    {{ form.hidden_tag() }}
-
-                    <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3">Goals</h3>
-                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            {{ form.income_goal.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ form.income_goal(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                        </div>
-                        <div>
-                            {{ form.days_to_forecast.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ form.days_to_forecast(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                        </div>
-                    </div>
-                    {# File: app/templates/manual_projector.html #}
-                    <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3 mt-8">Commission</h3>
-                    <div class="mt-4 space-y-3">
-                    <div class="flex items-center space-x-6">
-                        <label class="inline-flex items-center">
-                        <input class="h-4 w-4" type="radio" name="commission_base" value="profit" checked>
-                        <span class="ml-2 text-sm text-gray-700">Company profit</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                        <input class="h-4 w-4" type="radio" name="commission_base" value="revenue">
-                        <span class="ml-2 text-sm text-gray-700">Total sales price / RCV</span>
-                        </label>
-                    </div>
-
-                    <div id="marginBlock">
-                        <label class="block text-sm font-medium text-gray-700" for="company_margin">Company margin (%)</label>
-                        <input id="company_margin" name="company_margin" type="number" step="0.1" min="0" max="100"
-                            value="{{ current_user.company_margin or 30 }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                        <p class="mt-1 text-xs text-gray-500">Used only when base = profit.</p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700" for="commission_rate">Commission rate (%)</label>
-                        <input id="commission_rate" name="commission_rate" type="number" step="0.1" min="0" max="100"
-                            value="{{ current_user.commission_rate or 40 }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    </div>
-
-                    <script>
-                    // Hide margin when base = revenue
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const radios = document.querySelectorAll('input[name="commission_base"]');
-                        const block = document.getElementById('marginBlock');
-                        const input = document.getElementById('company_margin');
-                        function sync() {
-                        const base = [...radios].find(r => r.checked)?.value || 'profit';
-                        block.classList.toggle('hidden', base !== 'profit');
-                        if (base !== 'profit') input.value = 0;
-                        }
-                        radios.forEach(r => r.addEventListener('change', sync));
-                        sync();
-                    });
-                    </script>
-
-                    <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3 mt-8">Historical Performance</h3>
-                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            {{ form.doors_knocked.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ form.doors_knocked(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                        </div>
-                        <div>
-                            {{ form.appointments_set.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ form.appointments_set(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                        </div>
-                        <div>
-                            {{ form.deals_signed.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ form.deals_signed(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                        </div>
-                        <div>
-                            {{ form.deals_completed.label(class="block text-sm font-medium text-gray-700") }}
-                            {{ form.deals_completed(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        {{ form.total_rcv.label(class="block text-sm font-medium text-gray-700") }}
-                        {{ form.total_rcv(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
-                    </div>
-
-                    <div class="mt-8">
-                        {{ form.submit(class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="lg:w-1/2 mt-8 lg:mt-0">
-             
-    {% if results %}
-     
-    <div class="bg-white shadow-md rounded-lg">
-        <div class="p-6">
-            <h3 class="text-lg font-medium leading-6 text-gray-900">Your Daily Goals</h3>
-            <div class="px-6 pb-6">
-    <h4 class="mt-4 text-sm font-semibold text-gray-700">Commission</h4>
-    <div class="mt-2 text-sm text-gray-600 space-y-1">
-      <div>Base: <span data-assump="base">{{ results.assumptions.commission_base }}</span></div>
-      {% if results.assumptions.commission_base == 'profit' %}
-    <div>Company margin: <span data-assump="margin">{{ results.assumptions.company_margin_pct }}</span>%</div>
-      {% endif %}
-      <div>Commission rate: <span data-assump="rate">{{ results.assumptions.commission_pct }}</span>%</div>
-      <div>Effective on revenue: <span data-pct="eff">{{ results.percents.effective_on_revenue|round(2) }}</span>%</div>
-      <div>Avg commission / deal: ${{ results.avg_comm_per_deal|round(2) }}</div>
-    </div>
-
-    <h4 class="mt-4 text-sm font-semibold text-gray-700">Conversion percentages</h4>
-    <div class="mt-2 flex flex-wrap gap-2">
-      <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
-        Door → Appt: {{ results.percents.door_to_appt|round(2) }}%
-      </span>
-      <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
-        Appt → Signed: {{ results.percents.appt_to_sign|round(2) }}%
-      </span>
-      <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
-        Signed → Completed: {{ results.percents.sign_to_complete|round(2) }}%
-      </span>
-      <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
-        Avg RCV / Completed: ${{ results.ratios.avg_rcv_per_completed_deal|round(2) }}
-      </span>
-    </div>
+    <p class="mt-1 text-sm text-gray-600">
+      Enter your historical sales data to calculate the daily activity needed to reach your income goal.
+    </p>
   </div>
-            <!-- File: app/templates/manual_projector.html -->
+  <div class="flex flex-col lg:flex-row items-start gap-8">
 
+    <!-- Left column: form -->
+    <div class="lg:w-1/2">
+      <div class="bg-white shadow-md rounded-lg border border-gray-100 p-6">
+        <form action="" method="post" novalidate>
+          {{ form.hidden_tag() }}
 
-<script>
-  // hide margin when base=revenue
-  document.addEventListener('DOMContentLoaded', () => {
-    const radios = document.querySelectorAll('input[name="commission_base"]');
-    const block = document.getElementById('marginBlock');
-    const input = document.getElementById('company_margin');
-    function sync() {
-      const base = [...radios].find(r=>r.checked)?.value || 'profit';
-      block.classList.toggle('hidden', base !== 'profit');
-      if (base !== 'profit') input.value = 0;
-    }
-    radios.forEach(r=>r.addEventListener('change', sync));
-    sync();
-  });
-</script>
+          <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3">Goals</h3>
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              {{ form.income_goal.label(class="block text-sm font-medium text-gray-700") }}
+              {{ form.income_goal(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+            </div>
+            <div>
+              {{ form.days_to_forecast.label(class="block text-sm font-medium text-gray-700") }}
+              {{ form.days_to_forecast(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+            </div>
+          </div>
+
+          {# File: app/templates/manual_projector.html #}
+          <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3 mt-8">Commission</h3>
+          <div class="mt-4 space-y-3">
+            <div class="flex items-center space-x-6">
+              <label class="inline-flex items-center">
+                <input class="h-4 w-4" type="radio" name="commission_base" value="profit" checked>
+                <span class="ml-2 text-sm text-gray-700">Company profit</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input class="h-4 w-4" type="radio" name="commission_base" value="revenue">
+                <span class="ml-2 text-sm text-gray-700">Total sales price / RCV</span>
+              </label>
+            </div>
+
+            <div id="marginBlock">
+              <label class="block text-sm font-medium text-gray-700" for="company_margin">Company margin (%)</label>
+              <input id="company_margin" name="company_margin" type="number" step="0.1" min="0" max="100"
+                     value="{{ current_user.company_margin or 30 }}"
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+              <p class="mt-1 text-xs text-gray-500">Used only when base = profit.</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700" for="commission_rate">Commission rate (%)</label>
+              <input id="commission_rate" name="commission_rate" type="number" step="0.1" min="0" max="100"
+                     value="{{ current_user.commission_rate or 40 }}"
+                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            </div>
+          </div>
+
+          <!-- Hide margin when base = revenue -->
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              const radios = document.querySelectorAll('input[name="commission_base"]');
+              const block = document.getElementById('marginBlock');
+              const input = document.getElementById('company_margin');
+              function sync() {
+                const base = [...radios].find(r => r.checked)?.value || 'profit';
+                block.classList.toggle('hidden', base !== 'profit');
+                if (base !== 'profit') input.value = 0;
+              }
+              radios.forEach(r => r.addEventListener('change', sync));
+              sync();
+            });
+          </script>
+
+          <h3 class="text-lg font-medium leading-6 text-gray-900 border-b border-gray-200 pb-3 mt-8">Historical Performance</h3>
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              {{ form.doors_knocked.label(class="block text-sm font-medium text-gray-700") }}
+              {{ form.doors_knocked(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+            </div>
+            <div>
+              {{ form.appointments_set.label(class="block text-sm font-medium text-gray-700") }}
+              {{ form.appointments_set(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+            </div>
+            <div>
+              {{ form.deals_signed.label(class="block text-sm font-medium text-gray-700") }}
+              {{ form.deals_signed(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+            </div>
+            <div>
+              {{ form.deals_completed.label(class="block text-sm font-medium text-gray-700") }}
+              {{ form.deals_completed(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+            </div>
+          </div>
+          <div class="mt-4">
+            {{ form.total_rcv.label(class="block text-sm font-medium text-gray-700") }}
+            {{ form.total_rcv(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm") }}
+          </div>
+
+          <div class="mt-8">
+            {{ form.submit(class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
+          </div>
+        </form>
+      </div>
     </div>
+
+    <!-- Right column: results -->
+    <div class="lg:w-1/2 mt-8 lg:mt-0">
+      {% if results %}
+      <div id="mp-card" class="bg-white shadow-md rounded-lg border border-gray-100">
+  <div class="p-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium leading-6 text-gray-900">Your Daily Goals</h3>
+      <button id="refreshProjector" type="button"
+              class="ml-4 px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+        Refresh
+      </button>
+    </div>
+    <p class="mt-1 text-xs text-gray-500">Last updated: <span data-updated>never</span></p>
+  </div>
+
+        <div class="px-6 pb-6">
+          <h4 class="mt-4 text-sm font-semibold text-gray-700">Commission</h4>
+          <div class="mt-2 text-sm text-gray-600 space-y-1">
+            <div>Base: <span data-assump="base">{{ results.assumptions.commission_base }}</span></div>
+            {% if results.assumptions.commission_base == 'profit' %}
+            <div id="commissionMarginLine">Company margin: <span data-assump="margin">{{ results.assumptions.company_margin_pct }}</span>%</div>
+            {% endif %}
+            <div>Commission rate: <span data-assump="rate">{{ results.assumptions.commission_pct }}</span>%</div>
+            <div>Effective on revenue: <span data-pct="eff">{{ results.percents.effective_on_revenue|round(2) }}</span>%</div>
+            <div>Avg commission / deal: $<span data-money="avg_comm">{{ results.avg_comm_per_deal|round(2) }}</span></div>
+          </div>
+
+          <h4 class="mt-4 text-sm font-semibold text-gray-700">Conversion percentages</h4>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+              Door → Appt: <span data-pct="d2a">{{ results.percents.door_to_appt|round(2) }}</span>%
+            </span>
+            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+              Appt → Signed: <span data-pct="a2s">{{ results.percents.appt_to_sign|round(2) }}</span>%
+            </span>
+            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+              Signed → Completed: <span data-pct="s2c">{{ results.percents.sign_to_complete|round(2) }}</span>%
+            </span>
+            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
+              Avg RCV / Completed: $<span data-money="avg_rcv">{{ results.ratios.avg_rcv_per_completed_deal|round(2) }}</span>
+            </span>
+          </div>
+        </div>
+
         <div class="border-t border-gray-200">
-            <dl>
-                <div class="bg-gray-50 p-6 flex items-center">
-                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.25a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-.75.75Zm-4.5 0h3.75a.75.75 0 0 0 .75-.75v-7.5a.75.75 0 0 0-.75-.75H2.25a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 .75.75Zm9-15v-1.5a.75.75 0 0 0-.75-.75H9.75a.75.75 0 0 0-.75.75v1.5a.75.75 0 0 0 .75.75h3.75a.75.75 0 0 0 .75-.75Z" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <dt class="text-sm font-medium text-gray-500 truncate">Doors to Knock</dt>
-                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"
-                            data-kpi="doors_per_day">
-                        {{ results.daily_knocks | round(1) if results else 0 }}
-                        </dd>
-                    </div>
-                </div>
-                <div class="bg-white p-6 flex items-center">
-                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M-4.5 12h22.5" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <dt class="text-sm font-medium text-gray-500 truncate">Appointments to Set</dt>
-                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"
-                            data-kpi="appts_per_day">
-                        {{ results.daily_appointments | round(1) if results else 0 }}
-                        </dd>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-6 flex items-center">
-                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
-                    </div>
-                    <div class="ml-4">
-                        <dt class="text-sm font-medium text-gray-500 truncate">Deals to Sign</dt>
-                        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900"
-                            data-kpi="deals_per_day">
-                        {{ results.daily_deals_signed | round(1) if results else 0 }}
-                        </dd>
+          <dl>
+            <div class="bg-gray-50 p-6 flex items-center">
+              <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.25a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 .75-.75h3.75a.75.75 0 0 1 .75.75v7.5a.75.75 0 0 1-.75.75Zm-4.5 0h3.75a.75.75 0 0 0 .75-.75v-7.5a.75.75 0 0 0-.75-.75H2.25a.75.75 0 0 0-.75.75v7.5a.75.75 0 0 0 .75.75Zm9-15v-1.5a.75.75 0 0 0-.75-.75H9.75a.75.75 0 0 0-.75.75v1.5a.75.75 0 0 0 .75.75h3.75a.75.75 0 0 0 .75-.75Z" />
+                </svg>
+              </div>
+              <div class="ml-4">
+                <dt class="text-sm font-medium text-gray-500 truncate">Doors to Knock</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900" data-kpi="doors_per_day">
+                  {{ results.daily_knocks | round(1) if results else 0 }}
+                </dd>
+              </div>
+            </div>
+            <div class="bg-white p-6 flex items-center">
+              <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M-4.5 12h22.5" />
+                </svg>
+              </div>
+              <div class="ml-4">
+                <dt class="text-sm font-medium text-gray-500 truncate">Appointments to Set</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900" data-kpi="appts_per_day">
+                  {{ results.daily_appointments | round(1) if results else 0 }}
+                </dd>
+              </div>
+            </div>
+            <div class="bg-gray-50 p-6 flex items-center">
+              <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+              </div>
+              <div class="ml-4">
+                <dt class="text-sm font-medium text-gray-500 truncate">Deals to Sign</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900" data-kpi="deals_per_day">
+                  {{ results.daily_deals_signed | round(1) if results else 0 }}
+                </dd>
+              </div>
+            </div>
+          </dl>
+        </div>
+      </div>
 
-                    </div>
-                </div>
-            </dl>
-        </div>               
-    </div>
-                   
-    {% else %}
-    <div class="bg-white shadow-md rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
+      {% else %}
+      <div class="bg-white shadow-md rounded-lg p-8 text-center flex flex-col items-center justify-center h-full">
         <div class="flex-shrink-0 w-20 h-20 flex items-center justify-center bg-gray-100 text-gray-400 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.97 2.122c-.527.46-1.159.762-1.878.932M7.5 21L9 17.25m0 0a3 3 0 0 0 3.468-2.63M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-5.25 0h.008v.008h-.008v-.008Zm-2.25 0h.008v.008h-.008v-.008ZM9.75 12h.008v.008h-.008v-.008Z" />
-            </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.97 2.122c-.527.46-1.159.762-1.878.932M7.5 21L9 17.25m0 0a3 3 0 0 0 3.468-2.63M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-5.25 0h.008v.008h-.008v-.008Zm-2.25 0h.008v.008h-.008v-.008ZM9.75 12h.008v.008h-.008v-.008Z" />
+          </svg>
         </div>
         <h3 class="mt-4 text-lg font-medium text-gray-900">Your results will appear here</h3>
         <p class="mt-2 text-sm text-gray-500">Fill out the form on the left and click "Calculate Forecast" to see your daily targets.</p>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
+
+  </div>
 </div>
 
-    </div>
-</div>
-<!-- Manual Projector: bootstrap fetch (no DOM writes yet) -->
+<!-- Manual Projector: bootstrap fetch + DOM bind + refresh -->
 <script id="manual-projector-updater">
   async function loadManualProjector() {
     try {
+      // Build payload from the left form
+      const payload = {
+        income_goal: Number(document.querySelector('#income_goal')?.value || 0),
+        days_to_forecast: Number(document.querySelector('#days_to_forecast')?.value || 0),
+        doors_knocked: Number(document.querySelector('#doors_knocked')?.value || 0),
+        appointments_set: Number(document.querySelector('#appointments_set')?.value || 0),
+        deals_signed: Number(document.querySelector('#deals_signed')?.value || 0),
+        deals_completed: Number(document.querySelector('#deals_completed')?.value || 0),
+        total_rcv: Number(document.querySelector('#total_rcv')?.value || 0),
+        commission_base: (document.querySelector('input[name="commission_base"]:checked')?.value || 'profit'),
+        company_margin: Number(document.querySelector('#company_margin')?.value || 0),
+        commission_rate: Number(document.querySelector('#commission_rate')?.value || 0),
+      };
+
       const res = await fetch('/manual_projector.json', {
-        headers: { 'Accept': 'application/json' }
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        cache: 'no-store'
       });
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       console.table(data);
-        // Update assumption: base
-        const elBase = document.querySelector('[data-assump="base"]');
-        if (elBase && data.assumptions?.commission_base) {
-            elBase.textContent = data.assumptions.commission_base;
-        }
-        // Update assumption: margin
-        const elMargin = document.querySelector('[data-assump="margin"]');
-        if (elMargin && data.assumptions?.company_margin_pct !== undefined) {
-        elMargin.textContent = data.assumptions.company_margin_pct;
-        }
-        // Update assumption: rate
-        const elRate = document.querySelector('[data-assump="rate"]');
-        if (elRate && data.assumptions?.commission_pct !== undefined) {
-        elRate.textContent = data.assumptions.commission_pct;
-        }
-      console.log('[manual_projector] loaded', data);
-      // DOM updates come next step
+
+      // Show/hide margin row when base changes
+      const marginLine = document.getElementById('commissionMarginLine');
+      if (marginLine) {
+        const isProfit = data.assumptions?.commission_base === 'profit';
+        marginLine.style.display = isProfit ? '' : 'none';
+      }
+
+      // Assumptions
+      const elBase = document.querySelector('[data-assump="base"]');
+      if (elBase && data.assumptions?.commission_base) elBase.textContent = data.assumptions.commission_base;
+
+      const elMargin = document.querySelector('[data-assump="margin"]');
+      if (elMargin && data.assumptions?.company_margin_pct !== undefined) elMargin.textContent = data.assumptions.company_margin_pct;
+
+      const elRate = document.querySelector('[data-assump="rate"]');
+      if (elRate && data.assumptions?.commission_pct !== undefined) elRate.textContent = data.assumptions.commission_pct;
+
+      // Percents
+      const elEff = document.querySelector('[data-pct="eff"]');
+      if (elEff && data.percents?.effective_on_revenue !== undefined) elEff.textContent = data.percents.effective_on_revenue.toFixed(2);
+
+      const elD2A = document.querySelector('[data-pct="d2a"]');
+      if (elD2A && data.percents?.door_to_appt !== undefined) elD2A.textContent = data.percents.door_to_appt.toFixed(2);
+
+      const elA2S = document.querySelector('[data-pct="a2s"]');
+      if (elA2S && data.percents?.appt_to_sign !== undefined) elA2S.textContent = data.percents.appt_to_sign.toFixed(2);
+
+      const elS2C = document.querySelector('[data-pct="s2c"]');
+      if (elS2C && data.percents?.sign_to_complete !== undefined) elS2C.textContent = data.percents.sign_to_complete.toFixed(2);
+
+      // Money
+      const elAvgComm = document.querySelector('[data-money="avg_comm"]');
+      if (elAvgComm && data.avg_comm_per_deal !== undefined) elAvgComm.textContent = Number(data.avg_comm_per_deal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      // Update money: avg_rcv — force format with commas
+    {
+      const el = document.querySelector('[data-money="avg_rcv"]');
+      const v = data && data.ratios ? Number(data.ratios.avg_rcv_per_completed_deal) : NaN;
+      if (el && Number.isFinite(v)) {
+        el.textContent = v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      }
+    }
+    
+      // KPI
+      const elDoors = document.querySelector('[data-kpi="doors_per_day"]');
+      if (elDoors && data.daily_knocks !== undefined) elDoors.textContent = Number(data.daily_knocks).toFixed(1);
+
+      const elAppts = document.querySelector('[data-kpi="appts_per_day"]');
+      if (elAppts && data.daily_appointments !== undefined) elAppts.textContent = Number(data.daily_appointments).toFixed(1);
+
+      const elDeals = document.querySelector('[data-kpi="deals_per_day"]');
+      if (elDeals && data.daily_deals_signed !== undefined) elDeals.textContent = Number(data.daily_deals_signed).toFixed(1);
+
     } catch (err) {
       console.error('[manual_projector] fetch failed', err);
     }
   }
+      // Timestamp + flash feedback
+      const updatedEl = document.querySelector('[data-updated]');
+      if (updatedEl) updatedEl.textContent = new Date().toLocaleString();
+
+      const card = document.getElementById('mp-card');
+      if (card) {
+        card.classList.remove('mp-flash-once'); // restart animation
+        void card.offsetWidth;
+        card.classList.add('mp-flash-once');
+      }
+
+  // Initial load
   document.addEventListener('DOMContentLoaded', loadManualProjector);
+
+  // Auto-refresh every 60s
+  setInterval(loadManualProjector, 60000);
+
+  // Manual refresh button
+  const refreshBtn = document.getElementById('refreshProjector');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loadManualProjector();
+    });
+  }
 </script>
 {% endblock %}
