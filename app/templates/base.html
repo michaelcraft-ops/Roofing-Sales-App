@@ -3,12 +3,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Roofing Sales App</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}RoofingApp – Manual Projector{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <meta name="theme-color" content="#1f2937">
+
+  <!-- CSS/JS includes (put your Tailwind/bundle here) -->
+    <!-- Fonts + Tailwind -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: { extend: { fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] } } }
+    }
+    </script>
+
+    <!-- Child templates can inject extra tags -->
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">  
+    {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans">
+
+<body class="bg-gray-50 text-gray-900 font-sans">
     
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md">
@@ -37,6 +58,17 @@
     <main class="py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Flash Messages -->
+            {# File: app/templates/base.html #}
+                {% if form and form.errors %}
+                <div class="mb-6 p-4 rounded-md bg-red-50 text-red-800 border border-red-200">
+                    <ul class="list-disc ml-5">
+                    {% for field, errs in form.errors.items() %}
+                        <li><strong>{{ field }}</strong>: {{ errs|join(', ') }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="mb-6">
